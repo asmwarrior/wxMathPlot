@@ -62,8 +62,8 @@
 			<Add option="-mthreads" />
 			<Add option="`wx-config-msys2 --libs=all --prefix=$(TARGET_COMPILER_DIR)`" />
 		</Linker>
-		<Unit filename="../MathPlot/mathplot.cpp" />
-		<Unit filename="../MathPlot/mathplot.h" />
+		<Unit filename="../mathplot/mathplot.cpp" />
+		<Unit filename="../mathplot/mathplot.h" />
 		<Unit filename="MathPlotConfig.cpp" />
 		<Unit filename="MathPlotConfig.h" />
 		<Unit filename="MathPlotConfigDemo.cpp" />
