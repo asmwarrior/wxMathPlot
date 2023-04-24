@@ -339,8 +339,6 @@ MathPlotConfigDialog::MathPlotConfigDialog(wxWindow *parent, wxWindowID WXUNUSED
 	StaticBoxSizer3->Add(StaticBoxSizer4, 0, wxALL|wxALIGN_TOP, 5);
 	BoxSizer3->Add(StaticBoxSizer3, 0, wxALL|wxEXPAND, 2);
 	Panel1->SetSizer(BoxSizer3);
-	BoxSizer3->Fit(Panel1);
-	BoxSizer3->SetSizeHints(Panel1);
 	Panel2 = new wxPanel(nbConfig, ID_PANEL15, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL15"));
 	BoxSizer16 = new wxBoxSizer(wxHORIZONTAL);
 	FlexGridSizer6 = new wxFlexGridSizer(4, 2, 0, 0);
@@ -386,8 +384,6 @@ MathPlotConfigDialog::MathPlotConfigDialog(wxWindow *parent, wxWindowID WXUNUSED
 	BoxSizer15->Add(StaticBoxSizer5, 0, wxALL|wxEXPAND, 0);
 	BoxSizer16->Add(BoxSizer15, 1, wxALL|wxALIGN_TOP, 5);
 	Panel2->SetSizer(BoxSizer16);
-	BoxSizer16->Fit(Panel2);
-	BoxSizer16->SetSizeHints(Panel2);
 	Panel3 = new wxPanel(nbConfig, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));
 	BoxSizer4 = new wxBoxSizer(wxVERTICAL);
 	ChoiceAxis = new wxChoice(Panel3, ID_CHOICE7, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE7"));
@@ -480,8 +476,6 @@ MathPlotConfigDialog::MathPlotConfigDialog(wxWindow *parent, wxWindowID WXUNUSED
 	BoxSizer6->Add(BoxSizer5, 0, wxALL|wxALIGN_TOP, 2);
 	BoxSizer4->Add(BoxSizer6, 0, wxALL|wxEXPAND, 0);
 	Panel3->SetSizer(BoxSizer4);
-	BoxSizer4->Fit(Panel3);
-	BoxSizer4->SetSizeHints(Panel3);
 	Panel4 = new wxPanel(nbConfig, ID_PANEL4, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL4"));
 	BoxSizer8 = new wxBoxSizer(wxVERTICAL);
 	FlexGridSizer13 = new wxFlexGridSizer(1, 3, 0, 0);
@@ -586,8 +580,6 @@ MathPlotConfigDialog::MathPlotConfigDialog(wxWindow *parent, wxWindowID WXUNUSED
 	FlexGridSizer15->Add(BoxSizer10, 1, wxALL|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL, 5);
 	BoxSizer8->Add(FlexGridSizer15, 0, wxALL|wxEXPAND, 2);
 	Panel4->SetSizer(BoxSizer8);
-	BoxSizer8->Fit(Panel4);
-	BoxSizer8->SetSizeHints(Panel4);
 	nbConfig->AddPage(Panel1, _("General"), false);
 	nbConfig->AddPage(Panel2, _("Legend"), false);
 	nbConfig->AddPage(Panel3, _("Axis"), false);
@@ -600,8 +592,6 @@ MathPlotConfigDialog::MathPlotConfigDialog(wxWindow *parent, wxWindowID WXUNUSED
 	BoxSizer2->Add(bClose, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 4);
 	sizerMain->Add(BoxSizer2, 0, wxEXPAND, 4);
 	SetSizer(sizerMain);
-	sizerMain->Fit(this);
-	sizerMain->SetSizeHints(this);
 
 	Connect(ID_BUTTON5,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MathPlotConfigDialog::OnbFontClick);
 	Connect(ID_BUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MathPlotConfigDialog::OnbColorClick);
