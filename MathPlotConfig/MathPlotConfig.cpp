@@ -592,6 +592,7 @@ MathPlotConfigDialog::MathPlotConfigDialog(wxWindow *parent, wxWindowID WXUNUSED
 	BoxSizer2->Add(bClose, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 4);
 	sizerMain->Add(BoxSizer2, 0, wxEXPAND, 4);
 	SetSizer(sizerMain);
+	sizerMain->SetSizeHints(this);
 
 	Connect(ID_BUTTON5,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MathPlotConfigDialog::OnbFontClick);
 	Connect(ID_BUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MathPlotConfigDialog::OnbColorClick);
