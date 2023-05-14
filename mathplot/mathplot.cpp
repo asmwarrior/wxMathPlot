@@ -2754,6 +2754,7 @@ void mpWindow::OnPaint(wxPaintEvent &WXUNUSED(event))
 	// J.L.Blanco @ Aug 2007: Added double buffer support
 	if (m_enableDoubleBuffer)
 	{
+		wxLogMessage("mpWindow::OnPaint paint on the memory DC");
 		// Recreate Bitmap if sizes have changed
 		if (m_last_lx != m_scrX || m_last_ly != m_scrY)
 		{
@@ -2790,6 +2791,7 @@ void mpWindow::OnPaint(wxPaintEvent &WXUNUSED(event))
 
 	// Draw all the layers:
 	m_repainting = true;
+	wxLogMessage("mpWindow::OnPaint Paint all****");
 
 	mpFunctionType function;
 	mpScaleType scale;
@@ -2809,6 +2811,7 @@ void mpWindow::OnPaint(wxPaintEvent &WXUNUSED(event))
 	// If doublebuffer, draw now to the window:
 	if (m_enableDoubleBuffer)
 	{
+		wxLogMessage("mpWindow::OnPaint memory DC copy to screen");
 		dc.Blit(0, 0, m_scrX, m_scrY, trgDc, 0, 0, wxCOPY);
 		m_buff_dc->SelectObject(wxNullBitmap);
 		delete m_buff_dc;
@@ -3004,7 +3007,7 @@ void mpWindow::UpdateAll()
 			}
 		}
 	}
-
+	wxLogMessage("mpWindow::UpdateAll");
 	if (m_magnetize)
 	  m_magnet.ReInitDrawn();
 
@@ -4539,9 +4542,10 @@ void mpMagnet::Plot(mpWindow &w, const wxPoint &mousePos)
 	wxClientDC dc(&w);
 	dc.SetPen(*wxBLACK_PEN);
 	dc.SetLogicalFunction(wxINVERT);
-
+	wxLogMessage("mpMagnet::Plot enter >>>>>>> ");
 	if (m_IsDrawn)
 	{
+		wxLogMessage("mpMagnet::Plot draw XOR method, m_Inside(true)");
 		dc.DrawLine(m_mousePosition_old.x, m_plot_size.y, m_mousePosition_old.x, m_plot_size.height);
 		dc.DrawLine(m_plot_size.x, m_mousePosition_old.y, m_plot_size.width, m_mousePosition_old.y);
 		m_IsDrawn = false;
@@ -4558,6 +4562,7 @@ void mpMagnet::Plot(mpWindow &w, const wxPoint &mousePos)
 			}
 			else
 			{
+				wxLogMessage("mpMagnet::Plot draw COPY method!!!!!!");
 				dc.DrawLine(mousePos.x, m_plot_size.y, mousePos.x, m_plot_size.height);
 				dc.DrawLine(m_plot_size.x, mousePos.y, m_plot_size.width, mousePos.y);
 				dc.SetLogicalFunction(wxCOPY);
@@ -4567,6 +4572,8 @@ void mpMagnet::Plot(mpWindow &w, const wxPoint &mousePos)
 		}
 	}
 
+	wxLogMessage("mpMagnet::Plot leave <<<<<<<<<< ");
+
 	dc.SetLogicalFunction(wxCOPY);
 }
 
@@ -4574,6 +4581,7 @@ void mpMagnet::ClearPlot(mpWindow &w)
 {
 	if (m_IsDrawn || m_IsWasDrawn)
 	{
+		wxLogMessage("mpMagnet::ClearPlot, m_InDrawn = true");
 		wxClientDC dc(&w);
 		dc.SetPen(*wxBLACK_PEN);
 		dc.SetLogicalFunction(wxINVERT);
@@ -4582,6 +4590,10 @@ void mpMagnet::ClearPlot(mpWindow &w)
 		m_IsDrawn = m_IsWasDrawn;
 		m_IsWasDrawn = false;
 		dc.SetLogicalFunction(wxCOPY);
+	}
+	else
+	{
+		wxLogMessage("mpMagnet::ClearPlot, m_IsDrawn = false!!!");
 	}
 }
 
@@ -4592,8 +4604,12 @@ void mpMagnet::UpdatePlot(mpWindow &w, const wxPoint &mousePos)
 		// Mouse position change when pan operation
 		if (m_rightClick)
 			m_mousePosition_old = mousePos;
+
+        wxLogMessage("mpMagnet::UpdatePlot m_IsWasDrawn=true****");
 		ClearPlot(w);
 	}
+	else
+        wxLogMessage("mpMagnet::UpdatePlot m_IsWasDrawn=false!!!!");
 }
 
 //-----------------------------------------------------------------------------

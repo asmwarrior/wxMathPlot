@@ -38,6 +38,8 @@
 
 #include "mathplot.h"
 
+#include <wx/ffile.h>
+
 // Define a new application type, each program should derive a class from wxApp
 class MyApp: public wxApp
 {
@@ -94,7 +96,8 @@ enum
 // the event tables connect the wxWidgets events with the functions (event
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
-wxBEGIN_EVENT_TABLE(MyFrame, wxFrame) EVT_MENU(Demo_Quit, MyFrame::OnQuit)
+wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
+EVT_MENU(Demo_Quit, MyFrame::OnQuit)
 EVT_MENU(Demo_About, MyFrame::OnAbout)
 wxEND_EVENT_TABLE()
 
@@ -177,6 +180,15 @@ MyFrame::MyFrame(const wxString &title) :
 	wxSizer *sizer = new wxBoxSizer(wxVERTICAL);
 	sizer->Add(m_plot, 1, wxALL | wxEXPAND, 5);
 	SetSizer(sizer);
+
+	wxLog* logger = new wxLogStream(&std::cout);
+    wxLog::SetActiveTarget(logger);
+
+    FILE *logFile = fopen("log.txt", "w");
+    wxLogChain* logToFile = new wxLogChain(new wxLogStderr(logFile));
+    wxLog::SetActiveTarget(logToFile);
+
+
 }
 
 void MyFrame::CreatePlot(void)
