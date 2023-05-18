@@ -1538,7 +1538,7 @@ class mpMagnet
 		{
 			m_IsDrawn = false;
 			m_rightClick = false;
-			m_IsWasDrawn = false;
+			m_IsLock = false;
 		}
 		~mpMagnet()
 		{
@@ -1552,11 +1552,9 @@ class mpMagnet
 		void Plot(mpWindow &w, const wxPoint &mousePos);
 		void ClearPlot(mpWindow &w);
 		void UpdatePlot(mpWindow &w, const wxPoint &mousePos);
-		void ReInitDrawn(void)
-		{
-			m_IsWasDrawn = m_IsDrawn;
-			m_IsDrawn = false;
-		}
+		void Lock(); // an OnPaint will happen, so don't draw cross on the screen
+		void Unlock();        // an OnPaint happens, we can draw now
+
 
 		void SetRightClick(void)
 		{
@@ -1568,7 +1566,7 @@ class mpMagnet
 		wxRect m_plot_size;
 		wxPoint m_mousePosition_old;
 		bool m_IsDrawn;
-		bool m_IsWasDrawn;
+		bool m_IsLock;
 		bool m_rightClick;
 };
 

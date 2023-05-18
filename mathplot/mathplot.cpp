@@ -2819,7 +2819,10 @@ void mpWindow::OnPaint(wxPaintEvent &WXUNUSED(event))
 
 	// We redraw the cross if necessary. We pass the mouse position if we do a pan operation.
 	if (m_magnetize)
-		m_magnet.UpdatePlot(*this, m_mouseRClick);
+	{
+		m_magnet.Unlock();
+		m_magnet.UpdatePlot(*this, m_mouseRClick);  // maybe a bug, because UpdatePlot use wxClientDC, but we are in OnPaint
+	}
 
 	m_repainting = false;
 }
@@ -3009,7 +3012,7 @@ void mpWindow::UpdateAll()
 	}
 	wxLogMessage("mpWindow::UpdateAll");
 	if (m_magnetize)
-	  m_magnet.ReInitDrawn();
+	  m_magnet.Lock();
 
 	Refresh(false);
 }
@@ -4539,13 +4542,15 @@ void mpBitmapLayer::DoPlot(wxDC &dc, mpWindow &w)
 
 void mpMagnet::Plot(mpWindow &w, const wxPoint &mousePos)
 {
+	if (m_IsLock)
+		return;
 	wxClientDC dc(&w);
 	dc.SetPen(*wxBLACK_PEN);
 	dc.SetLogicalFunction(wxINVERT);
 	wxLogMessage("mpMagnet::Plot enter >>>>>>> ");
 	if (m_IsDrawn)
 	{
-		wxLogMessage("mpMagnet::Plot draw XOR method, m_Inside(true)");
+		wxLogMessage("mpMagnet::Plot draw XOR method, m_IsDrawn(true)");
 		dc.DrawLine(m_mousePosition_old.x, m_plot_size.y, m_mousePosition_old.x, m_plot_size.height);
 		dc.DrawLine(m_plot_size.x, m_mousePosition_old.y, m_plot_size.width, m_mousePosition_old.y);
 		m_IsDrawn = false;
@@ -4560,7 +4565,7 @@ void mpMagnet::Plot(mpWindow &w, const wxPoint &mousePos)
 			{
 				m_rightClick = false;
 			}
-			else
+			else if (!m_IsDrawn)
 			{
 				wxLogMessage("mpMagnet::Plot draw COPY method!!!!!!");
 				dc.DrawLine(mousePos.x, m_plot_size.y, mousePos.x, m_plot_size.height);
@@ -4579,37 +4584,48 @@ void mpMagnet::Plot(mpWindow &w, const wxPoint &mousePos)
 
 void mpMagnet::ClearPlot(mpWindow &w)
 {
-	if (m_IsDrawn || m_IsWasDrawn)
+	if (m_IsLock) // if m_IsLock == true, an OnPaint event will happen, so do not clear the plot!
+		return;
+	if (m_IsDrawn)
 	{
-		wxLogMessage("mpMagnet::ClearPlot, m_InDrawn = true");
+		wxLogMessage("mpMagnet::ClearPlot draw on old mouse xy, m_IsDrawn = %d, m_IsLock = %d", m_IsDrawn, m_IsLock);
 		wxClientDC dc(&w);
 		dc.SetPen(*wxBLACK_PEN);
 		dc.SetLogicalFunction(wxINVERT);
 		dc.DrawLine(m_mousePosition_old.x, m_plot_size.y, m_mousePosition_old.x, m_plot_size.height);
 		dc.DrawLine(m_plot_size.x, m_mousePosition_old.y, m_plot_size.width, m_mousePosition_old.y);
-		m_IsDrawn = m_IsWasDrawn;
-		m_IsWasDrawn = false;
+		m_IsDrawn = false;
 		dc.SetLogicalFunction(wxCOPY);
 	}
 	else
 	{
-		wxLogMessage("mpMagnet::ClearPlot, m_IsDrawn = false!!!");
+		wxLogMessage("mpMagnet::ClearPlot do nothing, m_IsDrawn = %d, m_IsLock = %d", m_IsDrawn, m_IsLock);
 	}
 }
 
 void mpMagnet::UpdatePlot(mpWindow &w, const wxPoint &mousePos)
 {
-	if (m_IsWasDrawn)
-	{
-		// Mouse position change when pan operation
-		if (m_rightClick)
-			m_mousePosition_old = mousePos;
 
-        wxLogMessage("mpMagnet::UpdatePlot m_IsWasDrawn=true****");
-		ClearPlot(w);
-	}
-	else
-        wxLogMessage("mpMagnet::UpdatePlot m_IsWasDrawn=false!!!!");
+	// Mouse position change when pan operation
+	if (m_rightClick)
+		m_mousePosition_old = mousePos;
+
+	wxLogMessage("mpMagnet::UpdatePlot m_IsLock=%d", m_IsLock);
+	ClearPlot(w);
+}
+
+void mpMagnet::Lock()
+{
+	wxLogMessage("mpMagnet::Lock m_IsDrawn = %d, m_IsLock = %d", m_IsDrawn, m_IsLock);
+	m_IsLock = true;
+}
+
+
+void mpMagnet::Unlock()
+{
+	wxLogMessage("mpMagnet::Unlock m_IsDrawn = %d, m_IsLock = %d", m_IsDrawn, m_IsLock);
+	m_IsLock = false;
+	m_IsDrawn = false;
 }
 
 //-----------------------------------------------------------------------------
