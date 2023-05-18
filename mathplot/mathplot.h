@@ -53,13 +53,13 @@
  Jose Luis Blanco, Val Greene.<br>
  */
 
-//this definition uses windows dll to export function. 
-//WXDLLIMPEXP_MATHPLOT definition definition changed to WXDLLIMPEXP_MATHPLOT  
-//mathplot_EXPORTS will be defined by cmake 
-#ifdef mathplot_EXPORTS 
+//this definition uses windows dll to export function.
+//WXDLLIMPEXP_MATHPLOT definition definition changed to WXDLLIMPEXP_MATHPLOT
+//mathplot_EXPORTS will be defined by cmake
+#ifdef mathplot_EXPORTS
 #define WXDLLIMPEXP_MATHPLOT WXEXPORT
 #define WXDLLIMPEXP_DATA_MATHPLOT(type) WXEXPORT type
-#else // not making DLL 
+#else // not making DLL
 #define WXDLLIMPEXP_MATHPLOT
 #define WXDLLIMPEXP_DATA_MATHPLOT(type) type
 #endif
@@ -1549,7 +1549,7 @@ class mpMagnet
 			m_domain = wxRect(left, top, width, height);
 			m_plot_size = wxRect(left, top, width + left, height + top);
 		}
-		void Plot(mpWindow &w, const wxPoint &mousePos);
+		void Plot(mpWindow &w, const wxPoint &mousePos, wxDC& dc);
 		void ClearPlot(mpWindow &w);
 		void UpdatePlot(mpWindow &w, const wxPoint &mousePos);
 		void Lock(); // an OnPaint will happen, so don't draw cross on the screen

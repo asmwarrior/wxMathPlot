@@ -2121,7 +2121,7 @@ void mpWindow::OnMouseMove(wxMouseEvent &event)
 				}
 
 				if (m_magnetize)
-					m_magnet.Plot(*this, eventPoint);
+					m_magnet.Plot(*this, eventPoint, dc);
 			}
 			else
 				m_movingInfoLayer->Move(moveVector);
@@ -2131,7 +2131,7 @@ void mpWindow::OnMouseMove(wxMouseEvent &event)
 			// First need to clean the plot. If we do not do that, we can have
 			// problem with InfoCoord when it follow mouse position
 			if (m_magnetize && (!m_repainting))
-			  m_magnet.ClearPlot(*this);
+			  	m_magnet.ClearPlot(*this);
 
 			// Mouse move coordinate
 			if (m_InfoCoords && m_InfoCoords->IsVisible())
@@ -2142,7 +2142,11 @@ void mpWindow::OnMouseMove(wxMouseEvent &event)
 			}
 
 			if (m_magnetize && (!m_repainting) && (event.GetEventType() == wxEVT_MOTION))
-				m_magnet.Plot(*this, eventPoint);
+			{
+				wxClientDC dc(this);
+				m_magnet.Plot(*this, eventPoint, dc);
+			}
+
 		}
 	}
 	event.Skip();
@@ -2821,7 +2825,8 @@ void mpWindow::OnPaint(wxPaintEvent &WXUNUSED(event))
 	if (m_magnetize)
 	{
 		m_magnet.Unlock();
-		m_magnet.UpdatePlot(*this, m_mouseRClick);  // maybe a bug, because UpdatePlot use wxClientDC, but we are in OnPaint
+		m_magnet.Plot(*this, m_mouseRClick, dc);
+		//m_magnet.UpdatePlot(*this, m_mouseRClick);  // maybe a bug, because UpdatePlot use wxClientDC, but we are in OnPaint
 	}
 
 	m_repainting = false;
@@ -4540,11 +4545,11 @@ void mpBitmapLayer::DoPlot(wxDC &dc, mpWindow &w)
 
 
 
-void mpMagnet::Plot(mpWindow &w, const wxPoint &mousePos)
+void mpMagnet::Plot(mpWindow &w, const wxPoint &mousePos, wxDC& dc)
 {
 	if (m_IsLock)
 		return;
-	wxClientDC dc(&w);
+	//wxClientDC dc(&w);
 	dc.SetPen(*wxBLACK_PEN);
 	dc.SetLogicalFunction(wxINVERT);
 	wxLogMessage("mpMagnet::Plot enter >>>>>>> ");
