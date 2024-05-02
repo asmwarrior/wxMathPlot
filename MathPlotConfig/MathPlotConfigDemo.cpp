@@ -38,6 +38,152 @@
 
 #include "mathplot.h"
 
+
+
+/** Plot layer implementing a y-scale ruler.
+ If align is set to mpALIGN_CENTER, the ruler is fixed at X=0 in the coordinate system.
+ If the align is set to mpALIGN_TOP or mpALIGN_BOTTOM, the axis is always drawn respectively at
+ top or bottom of the window. A label is plotted at the top-right hand of the ruler.
+ The scale numbering automatically adjusts to view and zoom factor.
+ */
+class WXDLLIMPEXP_MATHPLOT mpScaleY2: public mpScaleY
+{
+  public:
+    /** Full constructor.
+     @param name Label to plot by the ruler
+     @param flags Set the position of the scale with respect to the window.
+     @param grids Show grid or not. Give false (default) for not drawing the grid. */
+    mpScaleY2(const wxString &name = _T("Y"), int flags = mpALIGN_CENTERY, bool grids = false) :
+        mpScaleY(name, flags, grids)
+    {
+      ;
+    }
+
+    /** Layer plot handler.
+     This implementation will plot the ruler adjusted to the visible area. */
+    virtual void DoPlot(wxDC &dc, mpWindow &w);
+
+  protected:
+
+  DECLARE_DYNAMIC_CLASS(mpScaleY2)
+};
+
+// Minimum axis label separation
+#define MIN_X_AXIS_LABEL_SEPARATION 64
+#define MIN_Y_AXIS_LABEL_SEPARATION 32
+//-----------------------------------------------------------------------------
+// mpScaleY2
+//-----------------------------------------------------------------------------
+
+IMPLEMENT_DYNAMIC_CLASS(mpScaleY2, mpScaleY)
+
+void mpScaleY2::DoPlot(wxDC &dc, mpWindow &w)
+{
+  int orgx = GetOrigin(w);
+
+  // Draw nothing if we are outside margins
+  if (!m_drawOutsideMargins && ((orgx > (w.GetScreenX() - w.GetMarginRight())) || (orgx + 1 < w.GetMarginLeft())))
+    return;
+
+  // Draw Y axis
+  dc.DrawLine(orgx + 1, m_plotBondaries.startPy, orgx + 1, m_plotBondaries.endPy);
+
+  const double scaleY = w.GetScaleY();
+  const double step = GetStep(scaleY);
+  const double end = w.GetPosY() + (double)w.GetScreenY() / scaleY;
+
+  wxString fmt;
+  if (m_labelFormat.IsEmpty())
+  {
+    double maxScaleAbs = fabs(w.GetDesiredYmax());
+    double minScaleAbs = fabs(w.GetDesiredYmin());
+    double endscale = (maxScaleAbs > minScaleAbs) ? maxScaleAbs : minScaleAbs;
+    if ((endscale < 1e4) && (endscale > 1e-3))
+      fmt = _T("%.2f");
+    else
+      fmt = _T("%.2e");
+  }
+  else
+  {
+    fmt = m_labelFormat;
+  }
+
+  double n = floor((w.GetPosY() - (double)(w.GetScreenY()) / scaleY) / step) * step;
+
+  wxCoord tmp = 65536;
+  wxCoord labelW = 0;
+  // Before staring cycle, calculate label height
+  wxCoord labelHeigth = 0;
+  wxString s;
+  wxCoord tx = 0, ty = 0;
+  s.Printf(fmt, n);
+  dc.GetTextExtent(s, &tx, &labelHeigth);
+  labelHeigth /= 2;
+
+  // Draw grid, ticks and label
+  for (; n < end; n += step)
+  {
+    // To have a real zero
+    if (fabs(n) < 1e-10)
+      n = 0;
+    const int p = (int)((w.GetPosY() - n) * scaleY);
+    if ((p > m_plotBondaries.startPy + labelHeigth) && (p < m_plotBondaries.endPy - labelHeigth))
+    {
+      // Draw axis grids
+      if (m_grids && (n != 0))
+      {
+        dc.SetPen(m_gridpen);
+        dc.DrawLine(m_plotBondaries.startPx + 1, p, m_plotBondaries.endPx - 1, p);
+      }
+
+      // Draw axis ticks
+      if (m_ticks)
+      {
+        dc.SetPen(m_pen);
+        if (m_flags == mpALIGN_BORDER_LEFT)
+        {
+          dc.DrawLine(orgx, p, orgx + 4, p);
+        }
+        else
+        {
+          dc.DrawLine(orgx - 4, p, orgx, p);
+        }
+      }
+
+      if (IsLogAxis())
+      {
+        s = FormatLogValue(n);
+        if (s.IsEmpty())
+          continue;
+      }
+      else
+        s.Printf(fmt, n*2);
+
+      // Print ticks labels
+      dc.GetTextExtent(s, &tx, &ty);
+#ifdef MATHPLOT_DO_LOGGING
+      if (ty != labelHeigth)
+        wxLogMessage(_T("mpScaleY::Plot: ty(%d) and labelHeigth(%d) differ!"), ty, labelHeigth);
+#endif
+      labelW = (labelW <= tx) ? tx : labelW;
+      if ((tmp - p + labelHeigth) > MIN_Y_AXIS_LABEL_SEPARATION)
+      {
+        if ((m_flags == mpALIGN_BORDER_LEFT) || (m_flags == mpALIGN_RIGHT))
+          dc.DrawText(s, orgx + 4, p - ty / 2);
+        else
+          dc.DrawText(s, orgx - tx - 4, p - ty / 2);
+        tmp = p - labelHeigth;
+      }
+    }
+  }
+
+  // Draw axis name
+  DrawScaleName(dc, w, orgx, labelW);
+}
+
+
+
+
 // Define a new application type, each program should derive a class from wxApp
 class MyApp: public wxApp
 {
@@ -183,11 +329,15 @@ void MyFrame::CreatePlot(void)
 {
 	m_plot = new mpWindow(this);
 	m_plot->EnableDoubleBuffer(true);
-	m_plot->SetMargins(50, 20, 50, 50);
+	m_plot->SetMargins(50, 50, 50, 50);
 
 	mpScaleX *bottomAxis = new mpScaleX(wxT("X"), mpALIGN_CENTERX, true, mpX_NORMAL);
 	bottomAxis->SetLabelFormat("%g");
-	mpScaleY *leftAxis = new mpScaleY(wxT("Y"), mpALIGN_CENTERY, true);
+	mpScaleY *leftAxis = new mpScaleY(wxT("Y"), mpALIGN_LEFT, true);
+	leftAxis->SetLabelFormat("%g");
+
+	// add a second Y axis on the right margin
+	mpScaleY *rightAxis = new mpScaleY2(wxT("Y2"), mpALIGN_RIGHT, true);
 	leftAxis->SetLabelFormat("%g");
 
 	wxFont graphFont(11, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
@@ -199,6 +349,7 @@ void MyFrame::CreatePlot(void)
 
 	m_plot->AddLayer(bottomAxis);
 	m_plot->AddLayer(leftAxis);
+	m_plot->AddLayer(rightAxis);
 	mpTitle *plotTitle;
 	m_plot->AddLayer(plotTitle = new mpTitle(wxT("Demo MathPlot")));
 
