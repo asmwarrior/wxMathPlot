@@ -382,7 +382,7 @@ void MyFrame::CreatePlot(void)
 
 	mpFXYVector *serie2 = m_plot->GetXYSeries(1);
     for (int i = 0; i < 100; i++)
-		serie2->AddData(i / 10.0 + 5, sin(i / 10.0), true);
+		serie2->AddData(i / 10.0 + 5, 3 * sin(i / 10.0), true);
     serie2->SetY2Axis(true);
     serie2->SetBrush(*wxRED);
 	serie2->SetSymbol(mpsCircle);
