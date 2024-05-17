@@ -373,24 +373,32 @@ void MyFrame::CreatePlot(void)
 	m_plot->Fit();
 
 	// add a simple sinus serie
-	mpFXYVector *serie = m_plot->GetXYSeries(0);
+	mpFXYVector *serie0 = m_plot->GetXYSeries(0);
+    serie0->SetLimitPercent(0);
 	for (int i = 0; i < 100; i++)
-		serie->AddData(i / 10.0 + 40000, sin(i / 10.0), true);
-	m_plot->Fit();  //  UpdateAll
-	legend->SetNeedUpdate();
-	serie->SetLimitPercent(0);
+		serie0->AddData(i / 10.0 + 40000, sin(i / 10.0), true);
+    	// Some decoration
+	serie0->SetBrush(*wxYELLOW);
+	serie0->SetSymbol(mpsCircle);
 
-	mpFXYVector *serie2 = m_plot->GetXYSeries(1);
+	mpFXYVector *serie1 = m_plot->GetXYSeries(1);
+    serie1->SetLimitPercent(0);
     for (int i = 0; i < 100; i++)
-		serie2->AddData(i / 10.0 + 40000 + 5, 3 * sin(i / 10.0), true);
-    //serie2->SetY2Axis(true);
-    serie2->SetBrush(*wxRED);
-	serie2->SetSymbol(mpsCircle);
-	serie2->SetLimitPercent(0);
+		serie1->AddData(i / 10.0 + 40000 + 5, 3 * sin(i / 10.0), true);
+    serie1->SetBrush(*wxRED);
+	serie1->SetSymbol(mpsCircle);
 
-	// Some decoration
-	serie->SetBrush(*wxYELLOW);
-	serie->SetSymbol(mpsCircle);
+    mpFXYVector *serie2 = m_plot->GetXYSeries(2);
+    serie2->SetLimitPercent(0);
+    for (int i = 0; i < 100; i++)
+		serie2->AddData(i / 10.0 + 40000 + 5, -2.0, true);
+    serie2->SetBrush(*wxBLUE);
+	serie2->SetSymbol(mpsSquare);
+
+    //serie2->SetY2Axis(true);
+
+	legend->SetNeedUpdate();
+	m_plot->Fit();  //  UpdateAll
 }
 
 // event handlers
