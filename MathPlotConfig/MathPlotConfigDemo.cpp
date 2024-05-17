@@ -337,7 +337,7 @@ void MyFrame::CreatePlot(void)
 	leftAxis->SetLabelFormat("%g");
 
 	// add a second Y axis on the right margin
-	mpScaleY *rightAxis = new mpScaleY2(wxT("Y2"), mpALIGN_RIGHT, true);
+	mpScaleY *rightAxis = new mpScaleY(wxT("Y2"), mpALIGN_RIGHT, true, true);
 	leftAxis->SetLabelFormat("%g");
 
 	wxFont graphFont(11, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
@@ -350,7 +350,6 @@ void MyFrame::CreatePlot(void)
 	m_plot->AddLayer(bottomAxis);
 	m_plot->AddLayer(leftAxis);
 	m_plot->AddLayer(rightAxis);
-
 
     //mpScaleY *rightAxis = new mpScaleY(wxT("Y2"), mpALIGN_RIGHT, true, true);
     //m_plot->AddLayer(rightAxis);
@@ -374,7 +373,7 @@ void MyFrame::CreatePlot(void)
 
 	// add a simple sinus serie
 	mpFXYVector *serie0 = m_plot->GetXYSeries(0);
-    serie0->SetLimitPercent(0);
+    //serie0->SetLimitPercent(0);
 	for (int i = 0; i < 100; i++)
 		serie0->AddData(i / 10.0 + 40000, sin(i / 10.0), true);
     	// Some decoration
@@ -382,19 +381,19 @@ void MyFrame::CreatePlot(void)
 	serie0->SetSymbol(mpsCircle);
 
 	mpFXYVector *serie1 = m_plot->GetXYSeries(1);
-    serie1->SetLimitPercent(0);
+    //serie1->SetLimitPercent(0);
     for (int i = 0; i < 100; i++)
-		serie1->AddData(i / 10.0 + 40000 + 5, 3 * sin(i / 10.0), true);
+		serie1->AddData(i / 10.0 + 40000 + 5, 3 * sin(i / 10.0) + 4.0, true);
     serie1->SetBrush(*wxRED);
 	serie1->SetSymbol(mpsCircle);
+	//serie1->SetY2Axis(true);
 
     mpFXYVector *serie2 = m_plot->GetXYSeries(2);
-    serie2->SetLimitPercent(0);
+    //serie2->SetLimitPercent(0);
     for (int i = 0; i < 100; i++)
-		serie2->AddData(i / 10.0 + 40000 + 5, -2.0, true);
+		serie2->AddData(i / 10.0 + 40000 + 5, -4.0, true);
     serie2->SetBrush(*wxBLUE);
 	serie2->SetSymbol(mpsSquare);
-
     //serie2->SetY2Axis(true);
 
 	legend->SetNeedUpdate();
