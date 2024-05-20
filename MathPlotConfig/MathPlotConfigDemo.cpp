@@ -381,20 +381,24 @@ void MyFrame::CreatePlot(void)
 	serie0->SetSymbol(mpsCircle);
 
 	mpFXYVector *serie1 = m_plot->GetXYSeries(1);
-    //serie1->SetLimitPercent(0);
     for (int i = 0; i < 100; i++)
 		serie1->AddData(i / 10.0 + 40000 + 5, 3 * sin(i / 10.0) + 4.0, true);
     serie1->SetBrush(*wxRED);
 	serie1->SetSymbol(mpsCircle);
-	//serie1->SetY2Axis(true);
+	serie1->SetY2Axis(true);
 
     mpFXYVector *serie2 = m_plot->GetXYSeries(2);
-    //serie2->SetLimitPercent(0);
     for (int i = 0; i < 100; i++)
 		serie2->AddData(i / 10.0 + 40000 + 5, -4.0, true);
     serie2->SetBrush(*wxBLUE);
 	serie2->SetSymbol(mpsSquare);
     //serie2->SetY2Axis(true);
+
+
+    mpHorizontalLine* hLine = new mpHorizontalLine(/*y*/ 6, /*color*/ *wxGREEN, /*useY2Axis*/ true);
+    wxPen FXpen(*wxGREEN, 3, wxPENSTYLE_SOLID);
+    hLine->SetPen(FXpen);
+    m_plot->AddLayer(hLine);
 
 	legend->SetNeedUpdate();
 	m_plot->Fit();  //  UpdateAll
