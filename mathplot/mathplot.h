@@ -118,6 +118,9 @@ namespace MathPlot
 #define EPSILON   1e-8
 #define ISNOTNULL(x)  (fabs(x) > EPSILON)
 
+// A small extra margin for the plot boundary
+#define EXTRA_MARGIN  8
+
 //-----------------------------------------------------------------------------
 // classes
 //-----------------------------------------------------------------------------
@@ -2125,7 +2128,8 @@ class WXDLLIMPEXP_MATHPLOT mpWindow: public wxWindow
       m_plotBondaries.endPy = m_scrY;
       m_plotBondariesMargin.endPy = m_scrY - m_margin.bottom;
 
-      m_magnet.UpdateBox(m_margin.left, m_margin.top, m_plotWidth, m_plotHeight);
+      m_magnet.UpdateBox(m_margin.left - EXTRA_MARGIN, m_margin.top - EXTRA_MARGIN,
+          m_plotWidth + 2*EXTRA_MARGIN, m_plotHeight + 2*EXTRA_MARGIN);
     }
 
     /** Get current view's X dimension in device context units.
@@ -2456,10 +2460,16 @@ class WXDLLIMPEXP_MATHPLOT mpWindow: public wxWindow
     /** Get the bondaries of the plot. */
     mpRect GetPlotBondaries(bool with_margin) const
     {
+      mpRect bond;
       if (with_margin)
-        return m_plotBondariesMargin;
+        bond = m_plotBondariesMargin;
       else
-        return m_plotBondaries;
+        bond = m_plotBondaries;
+      bond.startPx -= EXTRA_MARGIN;
+      bond.endPx += EXTRA_MARGIN;
+      bond.startPy -= EXTRA_MARGIN;
+      bond.endPy += EXTRA_MARGIN;
+      return bond;
     }
 
     /** Set the draw of the box around the plot. */

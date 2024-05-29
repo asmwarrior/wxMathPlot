@@ -991,7 +991,8 @@ void mpFX::DoPlot(wxDC &dc, mpWindow &w)
 
   if (!m_drawOutsideMargins)
   {
-    wxRect rect(m_plotBondaries.startPx, m_plotBondaries.startPy, m_plotBondaries.endPx - m_plotBondaries.startPx,
+    wxRect rect(m_plotBondaries.startPx, m_plotBondaries.startPy,
+        m_plotBondaries.endPx - m_plotBondaries.startPx,
         m_plotBondaries.endPy - m_plotBondaries.startPy);
     dc.SetClippingRegion(rect);
   }
@@ -1098,7 +1099,8 @@ void mpFY::DoPlot(wxDC &dc, mpWindow &w)
 
   if (!m_drawOutsideMargins)
   {
-    wxRect rect(m_plotBondaries.startPx, m_plotBondaries.startPy, m_plotBondaries.endPx - m_plotBondaries.startPx,
+    wxRect rect(m_plotBondaries.startPx, m_plotBondaries.startPy,
+        m_plotBondaries.endPx - m_plotBondaries.startPx,
         m_plotBondaries.endPy - m_plotBondaries.startPy);
     dc.SetClippingRegion(rect);
   }
@@ -1244,7 +1246,8 @@ void mpFXY::DoPlot(wxDC &dc, mpWindow &w)
 
   if (!m_drawOutsideMargins)
   {
-    wxRect rect(m_plotBondaries.startPx, m_plotBondaries.startPy, m_plotBondaries.endPx - m_plotBondaries.startPx,
+    wxRect rect(m_plotBondaries.startPx , m_plotBondaries.startPy,
+        m_plotBondaries.endPx - m_plotBondaries.startPx,
         m_plotBondaries.endPy - m_plotBondaries.startPy);
     dc.SetClippingRegion(rect);
   }
@@ -1754,18 +1757,21 @@ int mpScaleX::GetOrigin(mpWindow &w)
       if (m_drawOutsideMargins)
         origin = X_BORDER_SEPARATION;
       else
-        origin = w.GetMarginTop();
+        origin = w.GetMarginTop() - EXTRA_MARGIN;
       break;
     }
     case mpALIGN_CENTERX:
       origin = w.y2p(0);
+      // Draw nothing if we are outside margins
+      if (!m_drawOutsideMargins && ((origin > (w.GetScreenY() - w.GetMarginBottom())) || (origin < w.GetMarginTop())))
+        origin = -1;
       break;
     case mpALIGN_BOTTOM:
     {
       if (m_drawOutsideMargins)
         origin = w.GetScreenY() - X_BORDER_SEPARATION;
       else
-        origin = w.GetScreenY() - w.GetMarginBottom();
+        origin = w.GetScreenY() - w.GetMarginBottom() + EXTRA_MARGIN - 1;
       break;
     }
     case mpALIGN_BORDER_BOTTOM:
@@ -1884,7 +1890,7 @@ void mpScaleX::DoPlot(wxDC &dc, mpWindow &w)
   int orgy = GetOrigin(w);
 
   // Draw nothing if we are outside margins
-  if (!m_drawOutsideMargins && ((orgy > (w.GetScreenY() - w.GetMarginBottom())) || (orgy < w.GetMarginTop())))
+  if (orgy == -1)
     return;
 
   // Draw X axis
@@ -2061,18 +2067,20 @@ int mpScaleY::GetOrigin(mpWindow &w)
       if (m_drawOutsideMargins)
         origin = Y_BORDER_SEPARATION;
       else
-        origin = w.GetMarginLeft();
+        origin = w.GetMarginLeft() - EXTRA_MARGIN - 1;
       break;
     }
     case mpALIGN_CENTERY:
       origin = w.x2p(0);
+      if (!m_drawOutsideMargins && ((origin > (w.GetScreenX() - w.GetMarginRight())) || (origin + 1 < w.GetMarginLeft())))
+        origin = -1;
       break;
     case mpALIGN_RIGHT:
     {
       if (m_drawOutsideMargins)
         origin = w.GetScreenX() - Y_BORDER_SEPARATION;
       else
-        origin = w.GetScreenX() - w.GetMarginRight();
+        origin = w.GetScreenX() - w.GetMarginRight() + EXTRA_MARGIN - 2;
       break;
     }
     case mpALIGN_BORDER_RIGHT:
@@ -2138,7 +2146,7 @@ void mpScaleY::DoPlot(wxDC &dc, mpWindow &w)
   int orgx = GetOrigin(w);
 
   // Draw nothing if we are outside margins
-  if (!m_drawOutsideMargins && ((orgx > (w.GetScreenX() - w.GetMarginRight())) || (orgx + 1 < w.GetMarginLeft())))
+  if (orgx == -1)
     return;
 
   // Draw Y axis
@@ -3251,16 +3259,17 @@ void mpWindow::OnPaint(wxPaintEvent &WXUNUSED(event))
   // Draw background plot area
   trgDc->SetBrush(m_bgColour);
   trgDc->SetTextForeground(m_fgColour);
-  trgDc->DrawRectangle(m_margin.left, m_margin.top, m_plotWidth, m_plotHeight);
+  trgDc->DrawRectangle(m_margin.left - EXTRA_MARGIN, m_margin.top - EXTRA_MARGIN,
+      m_plotWidth + 2*EXTRA_MARGIN, m_plotHeight + 2*EXTRA_MARGIN);
 
   // Draw all the layers in Z order
   for (int i = mpZIndex_BACKGROUND; i < mpZIndex_END; i++)
   {
-  for (wxLayerList::iterator it = m_layers.begin(); it != m_layers.end(); it++)
-  {
+    for (wxLayerList::iterator it = m_layers.begin(); it != m_layers.end(); it++)
+    {
       if ((*it)->GetZIndex() == i)
-      (*it)->Plot(*trgDc, *this);
-  }
+        (*it)->Plot(*trgDc, *this);
+    }
   }
 
   // If doublebuffer, draw now to the window:
@@ -4021,7 +4030,8 @@ wxBitmap* mpWindow::BitmapScreenshot(wxSize imageSize, bool fit)
 
   m_Screenshot_dc.SetBrush(m_bgColour);
   m_Screenshot_dc.SetTextForeground(m_fgColour);
-  m_Screenshot_dc.DrawRectangle(m_margin.left, m_margin.top, m_plotWidth, m_plotHeight);
+  m_Screenshot_dc.DrawRectangle(m_margin.left - EXTRA_MARGIN, m_margin.top - EXTRA_MARGIN,
+      m_plotWidth + 2*EXTRA_MARGIN, m_plotHeight + 2*EXTRA_MARGIN);
 
   if (fit)
   {
@@ -4036,11 +4046,11 @@ wxBitmap* mpWindow::BitmapScreenshot(wxSize imageSize, bool fit)
   // Draw all the layers in Z order
   for (int i = mpZIndex_BACKGROUND; i < mpZIndex_END; i++)
   {
-  for (wxLayerList::iterator it = m_layers.begin(); it != m_layers.end(); it++)
-  {
+    for (wxLayerList::iterator it = m_layers.begin(); it != m_layers.end(); it++)
+    {
       if ((*it)->GetZIndex() == i)
-      (*it)->Plot(m_Screenshot_dc, *this);
-  }
+        (*it)->Plot(m_Screenshot_dc, *this);
+    }
   }
   m_Screenshot_dc.SelectObject(wxNullBitmap);
 
@@ -4847,21 +4857,6 @@ void mpBitmapLayer::DoPlot(wxDC &dc, mpWindow &w)
 //-----------------------------------------------------------------------------
 // mpMagnet
 //-----------------------------------------------------------------------------
-//  +---------------------------------+
-//  |  Plot_size_XY(width,height)     |
-//  |  +--------------------------+   |
-//  |  |     |                    |   |
-//  |  |     |                    |   |
-//  |  |-----|--------------------|   |
-//  |  |     |MousePos            |   |
-//  |  |     |                    |   |
-//  |  |     |                    |   |
-//  |  +--------------------------+   |
-//  +---------------------------------+
-//             mPWindow
-
-
-
 
 void mpMagnet::Plot(wxClientDC &dc, const wxPoint &mousePos)
 {
