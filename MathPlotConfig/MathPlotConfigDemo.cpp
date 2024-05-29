@@ -394,11 +394,8 @@ void MyFrame::CreatePlot(void)
 	serie2->SetSymbol(mpsSquare);
     //serie2->SetY2Axis(true);
 
-
-    mpHorizontalLine* hLine = new mpHorizontalLine(/*y*/ 6, /*color*/ *wxGREEN, /*useY2Axis*/ true);
-    wxPen FXpen(*wxGREEN, 3, wxPENSTYLE_SOLID);
-    hLine->SetPen(FXpen);
-    m_plot->AddLayer(hLine);
+    wxPen Hor_pen(*wxGREEN, 3, wxPENSTYLE_SOLID);
+    m_plot->AddLayer(new mpHorizontalLine(5.0, Hor_pen, true));
 
 	legend->SetNeedUpdate();
 	m_plot->Fit();  //  UpdateAll
